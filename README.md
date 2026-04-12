@@ -63,4 +63,10 @@ On first launch, Zoomies opens a lightweight onboarding window before moving int
     • Releases: GitHub Releases
     • Source: this repository
 
-Thank you for taking the time to read this and I hope you enjoy Zoomies!
+☕ Support Zoomies 
+
+If Zoomies helps make your gaming sessions better and you’d like to support future updates, feel free to buy me a coffee here (or Dreamies for Meggy 🐈‍⬛) at:
+
+https://buymeacoffee.com/priorconstruction
+
+I genuinely appreciate the support ❤️ and thank you for taking the time to check out Zoomies!
