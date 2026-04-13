@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.1
+
+A small patch release to fixing gaming peripheral protection not showing across the built in profiles.
+
+### Fixes
+- Fixed Gaming Peripheral Software being correctly protected and shown as enabled across the built in in profiles such as Steam, CrossOver, Battle.net and Parallels
+- Refreshed and reformatted the README for clearer installation and an improved overview of Zoomies
+
 ## v1.0.0 – Initial public release
 
 ### Core redesign
