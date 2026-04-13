@@ -62,6 +62,16 @@ extension ProtectedApp {
                     "com.razerzone.rzupdater",
                     "com.steelseries.gg",
                     "com.corsair.iCUE"
+                name: "Gaming Peripheral Software", // Gaming peripheral protection for Mouse/Keyboard + Elgato.
+                bundleIDs: [
+                    "com.logi.ghub",
+                    "com.razerzone.rzupdater",
+                    "com.razer.rzupdater",
+                    "com.steelseries.gg",
+                    "com.corsair.iCUE",
+                    "com.elgato.StreamDeck",
+                    "com.elgato.WaveLink"
+
                 ]
             ),
     ]

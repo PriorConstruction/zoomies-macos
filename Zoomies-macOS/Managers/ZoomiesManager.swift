@@ -113,6 +113,9 @@ final class ZoomiesManager: ObservableObject {
             "com.razer.rzupdater",
             "com.corsair.iCUE",
             "com.steelseries.GG",
+            "com.razerzone.rzupdater",
+            "com.corsair.iCUE",
+            "com.steelseries.gg",
             
         ])
     }
