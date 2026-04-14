@@ -35,12 +35,12 @@ These core macOS protections include:
 - Spotlight
 - SecurityAgent
 
-Only normal user apps outsidde of this safety list are considered for cleanup. 
+Only normal user apps outside of this safety list are considered for cleanup. 
 
 ## 🚫 What Zoomies does NOT do
 
 - inject into games
-- modify mmemory or patch binaries
+- modify memory or patch binaries
 - alter game files or disable system security
 - replace macOS Game Mode 
 
@@ -57,7 +57,7 @@ It only uses native macOS tools and APIs such as:
 1. You can the latest DMG from the **Releases** section
 2. Drag the **Zoomies.app** into **Applications**
 3. Launch Zoomies from Applications
-4. Read and confirm the first tiem welcome then use the menu bar icon (controller) to prepare for gaming! 
+4. Read and confirm the first time welcome then use the menu bar icon (controller) to prepare for gaming! 
 
 
 ## 🔗 Links
