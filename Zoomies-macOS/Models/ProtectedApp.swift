@@ -33,7 +33,7 @@ extension ProtectedApp {
             isEnabledByDefault: false
         ),
         ProtectedApp(
-            name: "Battle.net", // Keep Battle.net open for native games. 
+            name: "Battle.net", // Keep Battle.net open for native games.
             bundleIDs: ["net.battle.app"],
             isEnabledByDefault: false
         ),
@@ -56,12 +56,6 @@ extension ProtectedApp {
                 bundleIDs: ["com.obsproject.obs-studio"]
         ),
             ProtectedApp(
-                name: "Gaming Peripheral Software", // Mouse & KB protection.
-                bundleIDs: [
-                    "com.logi.ghub",
-                    "com.razerzone.rzupdater",
-                    "com.steelseries.gg",
-                    "com.corsair.iCUE"
                 name: "Gaming Peripheral Software", // Gaming peripheral protection for Mouse/Keyboard + Elgato.
                 bundleIDs: [
                     "com.logi.ghub",
