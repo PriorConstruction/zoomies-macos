@@ -33,6 +33,11 @@ final class ZoomiesManager: ObservableObject {
         systemIntegrationService.setLaunchAtLoginEnabled(enabled)
         
     }
+
+    func isHighPowerModeSupported() -> Bool {
+        systemIntegrationService.isHighPowerModeSupported()
+    }
+
     // This will start the session by closing the unneeded apps and applying the tweaks.
     func prepareGamingSession() {
         Logger.log("Preparing gaming session")
