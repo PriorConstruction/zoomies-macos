@@ -5,7 +5,7 @@
 //  Created by Daniel @ Zoomies
 //
 
-// Menu bbar interface used for starting, ending and restoring sessions.
+// Menu bar interface used for starting, ending and restoring sessions.
 
 import SwiftUI
 import AppKit
@@ -61,17 +61,19 @@ struct MenuBarView: View {
                     )
                 )
 
-                Toggle(
-                    "Enable High Power Mode",
-                    isOn: Binding<Bool>(
-                        get: {
-                            manager.options.enableHighPowerMode
-                        },
-                        set: { newValue in
-                            manager.options.enableHighPowerMode = newValue
-                        }
+                if manager.isHighPowerModeSupported() {
+                    Toggle(
+                        "Enable High Power Mode",
+                        isOn: Binding<Bool>(
+                            get: {
+                                manager.options.enableHighPowerMode
+                            },
+                            set: { newValue in
+                                manager.options.enableHighPowerMode = newValue
+                            }
+                        )
                     )
-                )
+                }
 
                 Toggle(
                     "Launch at Login",
