@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.2
+
+A small quality of life update for Zoomies.
+
+### Improvements
+
+- High Power Mode will now only show on supported Macs
+- Removed the unused 'SettingsView' as everything now lives in the menu bar
+
 ## v1.0.1
 
 A small patch release to fixing gaming peripheral protection not showing across the built in profiles.
