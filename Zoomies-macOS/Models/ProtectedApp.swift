@@ -22,7 +22,8 @@ struct ProtectedApp: Identifiable, Hashable, Codable {
         self.isEnabledByDefault = isEnabledByDefault
     }
 }
-// One user faced protection group that can map to the difference app IDs.
+
+// One user faced protection group that can map to the different app IDs.
 extension ProtectedApp {
     static let `default`: [ProtectedApp] = [
         
@@ -43,7 +44,7 @@ extension ProtectedApp {
             isEnabledByDefault: false
         ),
         ProtectedApp(
-            name: "Parallels", // Keep open for playing non-native Mac games.
+            name: "Parallels Desktop", // Keep open for playing non native Mac games.
             bundleIDs: ["com.parallels.desktop"],
             isEnabledByDefault: false
         ),

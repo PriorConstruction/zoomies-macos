@@ -5,66 +5,82 @@
 //  Created by Daniel @ Zoomies
 //
 
-// This for handling the temporary tweaks used during gaming sessions.
+// This handles the small macOS integrations used by Zoomies.
+// v1.1 deliberately avoids admin password power tweaks because it took longer than doing it from the built in system settings.
 
 import Foundation
 import AppKit
 import ServiceManagement
 
 final class SystemIntegrationService {
-    private var previousMetalHUDEnvironmentValue: String?
-    private var didManageMetalHUDForSession = false
-
-    private var previousHighPowerModeValue: Int?
-    private var didChangeHighPowerModeForSession = false
-    // I'm using launchctl so newly launched Metal games support the HUD.
+    // Enables or disables Apple's Metal Performance HUD for games launched after starting Zoomies.
+    // This is useful for testing/benchmarking but it will only affects newly launched Metal games.
     func setMetalHUDEnabled(_ enabled: Bool) {
         if enabled {
-            let currentValue = runShellCommand("/bin/launchctl", arguments: ["getenv", "MTL_HUD_ENABLED"])
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-
-            previousMetalHUDEnvironmentValue = currentValue.isEmpty ? nil : currentValue
-
-            _ = runShellCommand("/bin/launchctl", arguments: ["setenv", "MTL_HUD_ENABLED", "1"])
-            didManageMetalHUDForSession = true
-            Logger.log("Metal HUD enabled")
+            runLaunchctl(arguments: ["setenv", "MTL_HUD_ENABLED", "1"])
+            runLaunchctl(arguments: ["setenv", "MTL_HUD_INSIGHTS_ENABLED", "1"])
+            Logger.log("Metal Performance HUD enabled for newly launched apps")
         } else {
-            guard didManageMetalHUDForSession else { return }
+            runLaunchctl(arguments: ["unsetenv", "MTL_HUD_ENABLED"])
+            runLaunchctl(arguments: ["unsetenv", "MTL_HUD_INSIGHTS_ENABLED"])
+            Logger.log("Metal Performance HUD disabled")
+        }
+    }
 
-            if let previousValue = previousMetalHUDEnvironmentValue, !previousValue.isEmpty {
-                _ = runShellCommand("/bin/launchctl", arguments: ["setenv", "MTL_HUD_ENABLED", previousValue])
-            } else {
-                _ = runShellCommand("/bin/launchctl", arguments: ["unsetenv", "MTL_HUD_ENABLED"])
+    // Small helper for launchctl commands.
+    private func runLaunchctl(arguments: [String]) {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/launchctl")
+        process.arguments = arguments
+
+        do {
+            try process.run()
+            process.waitUntilExit()
+
+            if process.terminationStatus != 0 {
+                Logger.log("launchctl failed with status \(process.terminationStatus): \(arguments.joined(separator: " "))")
             }
-
-            previousMetalHUDEnvironmentValue = nil
-            didManageMetalHUDForSession = false
-            Logger.log("Metal HUD restored to previous state")
+        } catch {
+            Logger.log("Failed to run launchctl \(arguments.joined(separator: " ")): \(error.localizedDescription)")
         }
     }
-    // High Power Mode is handled so it can be enaebled just for the session.
-    func setHighPowerModeEnabled(_ enabled: Bool) {
-        if enabled {
-            applyHighPowerModeIfNeeded()
-        } else {
-            restoreHighPowerModeIfNeeded()
-        }
-    }
-
     func isHighPowerModeSupported() -> Bool {
         let caps = runShellCommand("/usr/bin/pmset", arguments: ["-g", "cap"]).lowercased()
         return caps.contains("highpowermode")
     }
 
-    func currentHighPowerModeStatusText() -> String {
-        guard isHighPowerModeSupported() else {
-            return "Not supported on this Mac"
+    // We open settings rather than asking for an admin password.
+    // This keeps Zoomies honest, macOS owns this setting, Zoomies just guides the user there, much quicker to enable this way.
+    func openEnergySettings() {
+        let urls = [
+            "x-apple.systempreferences:com.apple.Battery-Settings.extension",
+            "x-apple.systempreferences:com.apple.preference.energysaver"
+        ]
+
+        for urlString in urls {
+            if let url = URL(string: urlString), NSWorkspace.shared.open(url) {
+                Logger.log("Opened energy settings")
+                return
+            }
         }
 
-        let currentValue = currentHighPowerModeValue()
-        return currentValue == 2 ? "Enabled on this Mac" : "Supported • Currently Off"
+        Logger.log("Could not open energy settings")
     }
-    // This will keep the login registration outside of the main maanger.
+
+    func restoreManagedStateIfNeeded() {
+        // Kept for any future crash recovery hooks.
+        // v1.1 does not leave admin power tweaks or global HUD changes behind.
+    }
+
+    func isLaunchAtLoginSupported() -> Bool {
+        if #available(macOS 13.0, *) {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    // This will keep the login registration outside of our main manager.
     func setLaunchAtLoginEnabled(_ enabled: Bool) {
         guard #available(macOS 13.0, *) else {
             Logger.log("Launch at Login requires macOS 13 or later")
@@ -96,7 +112,6 @@ final class SystemIntegrationService {
         return SMAppService.mainApp.status == .enabled
     }
 
-    // A little helper for the shell commands when using Metal and power mode checks.
     private func runShellCommand(_ launchPath: String, arguments: [String]) -> String {
         guard FileManager.default.fileExists(atPath: launchPath) else {
             Logger.log("Missing executable at \(launchPath)")
@@ -133,109 +148,5 @@ final class SystemIntegrationService {
         }
 
         return String(data: outputData, encoding: .utf8) ?? ""
-    }
-    // This is used only for temporary changes that requires admin approval.
-    private func runPrivilegedShellCommand(_ command: String) -> Bool {
-        let escapedCommand = command.replacingOccurrences(of: "\"", with: "\\\"")
-        let scriptSource = "do shell script \"\(escapedCommand)\" with administrator privileges"
-
-        guard let script = NSAppleScript(source: scriptSource) else {
-            Logger.log("Failed to create privileged AppleScript")
-            return false
-        }
-
-        var error: NSDictionary?
-        script.executeAndReturnError(&error)
-
-        if let error {
-            Logger.log("Privileged command failed: \(error)")
-            return false
-        }
-
-        return true
-    }
-
-    private func isOnACPower() -> Bool {
-        let output = runShellCommand("/usr/bin/pmset", arguments: ["-g", "ps"]).lowercased()
-        return output.contains("ac power")
-    }
-
-    private func currentHighPowerModeValue() -> Int {
-        let output = runShellCommand("/usr/bin/pmset", arguments: ["-g"])
-        let lines = output.split(separator: "\n")
-
-        for line in lines {
-            let cleaned = line.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-
-            if cleaned.hasPrefix("powermode") || cleaned.hasPrefix("highpowermode") {
-                let parts = cleaned
-                    .split(whereSeparator: { $0 == " " || $0 == "\t" })
-                    .map(String.init)
-
-                if let last = parts.last, let value = Int(last) {
-                    return value
-                }
-            }
-        }
-
-        return 0
-    }
-    // High Power Mode is only to be enabled if the Mac in question supports & Zoomies is the one turning it on.
-    private func applyHighPowerModeIfNeeded() {
-        guard isHighPowerModeSupported() else {
-            Logger.log("High Power Mode is not supported on this Mac")
-            return
-        }
-
-        let currentValue = currentHighPowerModeValue()
-        previousHighPowerModeValue = currentValue
-
-        // If HPM is already on, Zoomies doesn't own restoring it.
-        if currentValue == 2 {
-            didChangeHighPowerModeForSession = false
-            Logger.log("High Power Mode was already enabled before session")
-            return
-        }
-
-        let command: String
-        if isOnACPower() {
-            command = "/usr/bin/pmset -c powermode 2"
-        } else {
-            command = "/usr/bin/pmset -b powermode 2"
-        }
-
-        let success = runPrivilegedShellCommand(command)
-
-        if success {
-            didChangeHighPowerModeForSession = true
-            Logger.log("High Power Mode enabled for session")
-        } else {
-            didChangeHighPowerModeForSession = false
-            Logger.log("Failed to enable High Power Mode")
-        }
-    }
-    // This will restore the previous power mode if Zoomies is the one that changed it.
-    private func restoreHighPowerModeIfNeeded() {
-        guard isHighPowerModeSupported() else { return }
-        guard didChangeHighPowerModeForSession else { return }
-        guard let previousValue = previousHighPowerModeValue else { return }
-
-        let command: String
-        if isOnACPower() {
-            command = "/usr/bin/pmset -c powermode \(previousValue)"
-        } else {
-            command = "/usr/bin/pmset -b powermode \(previousValue)"
-        }
-
-        let success = runPrivilegedShellCommand(command)
-
-        didChangeHighPowerModeForSession = false
-        previousHighPowerModeValue = nil
-
-        if success {
-            Logger.log("High Power Mode restored to previous state")
-        } else {
-            Logger.log("Failed to restore High Power Mode")
-        }
     }
 }

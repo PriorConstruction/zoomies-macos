@@ -1,11 +1,48 @@
 # Changelog
 
+## v1.1
+
+A major update focused on making Zoomies feel more polished, more intelligent and more complete as a proper macOS utility.
+
+### Settings redesign 
+- The settings expeirence was rebuilt into a dedicated native macOS preferences window
+- Added a cleaner toolbar layout for faster navigation
+- Added separate pages for General settings and Protected Apps
+- Improved the overall spacing, layout and visual consistency across Zoomies
+
+### Protected Apps improvements
+- Added a full protected Apps manager
+- Added support for manually adding your own customer protected apps
+- Added support for removing custom protected apps
+- Added a new remembered Custom profile for personal setups/preferences
+- Custom protected apps also persist correctly between launches
+
+### Profiles
+- The  built in profiles remain lightweight and unaffected
+- Added smarter Custom profile behaviour when users make personal changes
+- Improved the profile flow so Zoomies feel more intuitive to use
+
+### Review and Prepare flow 
+- Added a new Review Preparation window before anything closes
+- This shows Protected Apps (will stay open) and Background Apps (may close)
+- Nothing happens until Prepare is pressed
+- This improves trust, transparency and control of how Zoomies functions
+
+### App icon improvements 
+- Added better icon detection for every supported app where available
+
+### General fixes and polish
+- Fixed the app count reporting after rrestore
+- Fixed multiple SwiftUI and AppKit quirks
+- Improved onboarding presentation
+- Improved DMG presentation
+- General cleanup across the project 
+
 ## v1.0.2
 
 A small quality of life update for Zoomies.
 
 ### Improvements
-
 - High Power Mode will now only show on supported Macs
 - Removed the unused 'SettingsView' as everything now lives in the menu bar
 

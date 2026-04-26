@@ -17,7 +17,7 @@ final class WelcomeWindowController: NSWindowController {
         let contentView = WelcomeView {
             UserDefaults.standard.set(true, forKey: AppStorageKeys.hasSeenWelcome)
             UserDefaults.standard.synchronize()
-            // Welcome window to be releaased once onboarding completed.
+            // Welcome window to be released once onboarding completed.
             sharedController?.close()
             sharedController = nil
         }
